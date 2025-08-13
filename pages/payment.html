@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulación de Pago - Stripe</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .payment-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            width: 350px;
+        }
+        h2 {
+            text-align: center;
+        }
+        .form-row {
+            margin-bottom: 20px;
+        }
+        #card-element {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background: white;
+        }
+        button {
+            background: #6772E5;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #5469d4;
+        }
+        #payment-message {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <h2>Pago con Stripe</h2>
+        <form id="payment-form">
+            <div class="form-row">
+                <label>Monto (MXN)</label>
+                <input type="number" id="amount" value="100" min="1" step="1" required>
+            </div>
+            <div class="form-row">
+                <label>Tarjeta</label>
+                <div id="card-element"></div>
+            </div>
+            <button type="submit">Pagar</button>
+            <div id="payment-message"></div>
+        </form>
+    </div>
+
+    <script>
+        // Inicializar Stripe
+        const stripe = Stripe("pk_test_51RuO4YEHCG76fK59KxrvNzw15qGJUfqo7ey1wxig88On1cEVF7CKlCJdvl3YmQumyVXL5aFnofQw3DajkFwuAyof00bcP4v3XC"); // Reemplazar con tu clave pública
+        const elements = stripe.elements();
+        const card = elements.create("card");
+        card.mount("#card-element");
+
+        const form = document.getElementById("payment-form");
+        const paymentMessage = document.getElementById("payment-message");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            paymentMessage.textContent = "Procesando pago...";
+
+            const amount = parseInt(document.getElementById("amount").value) * 100; // convertir a centavos
+
+            try {
+                // 1. Crear PaymentIntent desde API
+                const res = await fetch("http://localhost:3000/payment/create-payment", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ amount, currency: "mxn" })
+                });
+
+                const { clientSecret } = await res.json();
+
+                // 2. Confirmar pago en frontend
+                const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret, {
+                    payment_method: { card: card }
+                });
+
+                if (error) {
+                    paymentMessage.textContent = "Error: " + error.message;
+                } else if (paymentIntent.status === "succeeded") {
+                    paymentMessage.textContent = "✅ Pago exitoso";
+                }
+            } catch (err) {
+                paymentMessage.textContent = "Error de conexión";
+            }
+        });
+    </script>
+</body>
+</html>

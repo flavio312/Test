@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Acceso al Sistema</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      padding: 2.5rem;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      max-width: 450px;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 0.5rem;
+      font-size: 2rem;
+      font-weight: 300;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+    }
+
+    .form-container {
+      transition: all 0.3s ease;
+    }
+
+    .form-container.hidden {
+      display: none;
+    }
+
+    .form-container h2 {
+      color: #333;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .input-group {
+      position: relative;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      border: 2px solid #e1e5e9;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #fafafa;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      background: white;
+    }
+
+    input:valid {
+      border-color: #28a745;
+    }
+
+    button {
+      padding: 1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .form-links {
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+
+    .form-links a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .form-links a:hover {
+      color: #764ba2;
+      text-decoration: underline;
+    }
+
+    .toggle-form {
+      text-align: center;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #eee;
+    }
+
+    .toggle-form p {
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+
+    .toggle-btn {
+      background: transparent;
+      color: #667eea;
+      border: 2px solid #667eea;
+      padding: 0.75rem 1.5rem;
+      border-radius: 25px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      margin-top: 0;
+    }
+
+    .toggle-btn:hover {
+      background: #667eea;
+      color: white;
+      transform: translateY(-1px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal.hidden {
+      display: none;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      max-width: 400px;
+      width: 90%;
+      position: relative;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    }
+
+    .close-button {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+      transition: color 0.3s ease;
+    }
+
+    .close-button:hover {
+      color: #333;
+    }
+
+    .message {
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    .success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid transparent;
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .container {
+        padding: 2rem 1.5rem;
+        margin: 10px;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+    }
+
+    /* Animaciones suaves */
+    .fade-in {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🍽️ Fonda DL</h1>
+    <p class="subtitle">Acceso al sistema de gestión</p>
+
+    <!-- Formulario de Login -->
+    <div id="login-container" class="form-container">
+      <h2>Iniciar Sesión</h2>
+      <form id="login-form">
+        <div class="input-group">
+          <input type="email" name="email" placeholder="Correo electrónico" required />
+        </div>
+        <div class="input-group">
+          <input type="password" name="password" placeholder="Contraseña" required />
+        </div>
+        <button type="submit">
+          <span id="login-loading" class="loading hidden"></span>
+          Iniciar Sesión
+        </button>
+      </form>
+      
+      <div class="form-links">
+        <a href="#" id="forgot-password-link">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <div class="toggle-form">
+        <p>¿No tienes una cuenta?</p>
+        <button type="button" class="toggle-btn" id="show-register">
+          Crear cuenta nueva
+        </button>
+      </div>
+    </div>
+
+    <!-- Formulario de Registro -->
+    <div id="register-container" class="form-container hidden">
+      <h2>Crear Cuenta</h2>
+      <form id="register-form">
+        <div class="input-group">
+          <input type="text" name="name" placeholder="Nombre completo" required />
+        </div>
+        <div class="input-group">
+          <input type="email" name="email" placeholder="Correo electrónico" required />
+        </div>
+        <div class="input-group">
+          <input type="password" name="password" placeholder="Contraseña (mín. 6 caracteres)" required minlength="6" />
+        </div>
+        <button type="submit">
+          <span id="register-loading" class="loading hidden"></span>
+          Crear Cuenta
+        </button>
+      </form>
+
+      <div class="toggle-form">
+        <p>¿Ya tienes una cuenta?</p>
+        <button type="button" class="toggle-btn" id="show-login">
+          Iniciar Sesión
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para recuperación de contraseña -->
+  <div id="forgot-password-modal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close-button" id="close-modal">&times;</span>
+      <h2>Recuperar Contraseña</h2>
+      <p style="color: #666; margin-bottom: 1.5rem; text-align: center;">
+        Ingresa tu correo y te enviaremos instrucciones para recuperar tu contraseña.
+      </p>
+      <div id="forgot-message-container"></div>
+      <form id="forgot-password-form">
+        <div class="input-group">
+          <input type="email" name="email" placeholder="Correo electrónico" required />
+        </div>
+        <button type="submit">
+          <span id="forgot-loading" class="loading hidden"></span>
+          Enviar instrucciones
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Elementos del DOM
+    const loginContainer = document.getElementById('login-container');
+    const registerContainer = document.getElementById('register-container');
+    const showRegisterBtn = document.getElementById('show-register');
+    const showLoginBtn = document.getElementById('show-login');
+    const forgotLink = document.getElementById('forgot-password-link');
+    const modal = document.getElementById('forgot-password-modal');
+    const closeModal = document.getElementById('close-modal');
+    const forgotForm = document.getElementById('forgot-password-form');
+    const forgotMessageContainer = document.getElementById('forgot-message-container');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+
+    // Función para cambiar entre formularios
+    function toggleForms(showLogin = true) {
+      if (showLogin) {
+        loginContainer.classList.remove('hidden');
+        registerContainer.classList.add('hidden');
+        loginContainer.classList.add('fade-in');
+      } else {
+        loginContainer.classList.add('hidden');
+        registerContainer.classList.remove('hidden');
+        registerContainer.classList.add('fade-in');
+      }
+    }
+
+    // Event listeners para cambiar formularios
+    showRegisterBtn.addEventListener('click', () => {
+      toggleForms(false);
+    });
+
+    showLoginBtn.addEventListener('click', () => {
+      toggleForms(true);
+    });
+
+    // Función para mostrar mensajes
+    function showMessage(container, message, type = 'error') {
+      container.innerHTML = `<div class="message ${type}">${message}</div>`;
+    }
+
+    // Función para mostrar/ocultar loading
+    function toggleLoading(loadingElement, button, show) {
+      if (show) {
+        loadingElement.classList.remove('hidden');
+        button.disabled = true;
+      } else {
+        loadingElement.classList.add('hidden');
+        button.disabled = false;
+      }
+    }
+
+    // Modal de recuperación de contraseña
+    forgotLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      modal.classList.remove('hidden');
+      forgotMessageContainer.innerHTML = '';
+    });
+
+    closeModal.addEventListener('click', () => {
+      modal.classList.add('hidden');
+      forgotMessageContainer.innerHTML = '';
+    });
+
+    // Cerrar modal al hacer clic fuera
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.add('hidden');
+        forgotMessageContainer.innerHTML = '';
+      }
+    });
+
+    // Formulario de recuperación de contraseña
+    forgotForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = forgotForm.elements.email.value;
+      const forgotLoading = document.getElementById('forgot-loading');
+      const submitBtn = forgotForm.querySelector('button[type="submit"]');
+
+      try {
+        toggleLoading(forgotLoading, submitBtn, true);
+        forgotMessageContainer.innerHTML = '';
+
+        const response = await fetch('http://localhost:3000/auth/forgot-recu', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+          showMessage(forgotMessageContainer, 'Se han enviado instrucciones a tu correo.', 'success');
+          forgotForm.reset();
+        } else {
+          showMessage(forgotMessageContainer, data.message || 'Error al enviar solicitud');
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        showMessage(forgotMessageContainer, 'Error al conectar con el servidor');
+      } finally {
+        toggleLoading(forgotLoading, submitBtn, false);
+      }
+    });
+
+    // Formulario de login
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = loginForm.elements.email.value;
+      const password = loginForm.elements.password.value;
+      const loginLoading = document.getElementById('login-loading');
+      const submitBtn = loginForm.querySelector('button[type="submit"]');
+
+      try {
+        toggleLoading(loginLoading, submitBtn, true);
+
+        const response = await fetch('http://52.54.93.213:3000/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+          // Mostrar mensaje de bienvenida
+          const userName = data.name || 'Usuario';
+          
+          // Guardar datos en localStorage
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data));
+          
+          // Redireccionar al menú
+          window.location.href = '../pages/menu.html';
+        } else {
+          alert('Error: ' + data.message);
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        alert('Error al conectar con el servidor');
+      } finally {
+        toggleLoading(loginLoading, submitBtn, false);
+      }
+    });
+
+    // Formulario de registro
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(registerForm);
+      const registerData = Object.fromEntries(formData);
+      const registerLoading = document.getElementById('register-loading');
+      const submitBtn = registerForm.querySelector('button[type="submit"]');
+
+      try {
+        toggleLoading(registerLoading, submitBtn, true);
+
+        const response = await fetch('http://localhost:3000/api/user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(registerData)
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+          alert('¡Registro exitoso! Ahora puedes iniciar sesión.');
+          registerForm.reset();
+          toggleForms(true); // Cambiar al formulario de login
+        } else {
+          alert('Error: ' + data.message);
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        alert('Error al conectar con el servidor');
+      } finally {
+        toggleLoading(registerLoading, submitBtn, false);
+      }
+    });
+
+    // Limpiar animaciones después de que terminen
+    setTimeout(() => {
+      document.querySelectorAll('.fade-in').forEach(el => {
+        el.classList.remove('fade-in');
+      });
+    }, 300);
+  </script>
+</body>
+</html>

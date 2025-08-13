@@ -1,0 +1,31 @@
+   body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background-color: #f0f0f0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    form input, form button {
+      display: block;
+      width: 100%;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+    }
+    .platos-container {
+      margin-top: 3rem;
+      display: grid;
+      gap: 1.5rem;
+    }
+    .plato-card {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .plato-card img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 6px;
+    }
